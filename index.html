@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYCTransit Hub - Train Updates</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>NYCTransit Hub - Train Updates</h1>
+    </header>
+    <main>
+        <select id="lineSelector">
+            <option value="NQRW">N, Q, R, W</option>
+            <option value="ACE">A, C, E</option>
+            <option value="BDFM">B, D, F, M</option>
+            <option value="G">G</option>
+            <option value="JZ">J, Z</option>
+            <option value="L">L</option>
+            <option value="SIR">Staten Island Railway</option>
+            <!-- Additional options as per your requirement -->
+        </select>
+        <button onclick="fetchUpdates()">Fetch Updates</button>
+        <div id="updates"></div>
+    </main>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        function fetchUpdates() {
+            const selectedLine = document.getElementById('lineSelector').value;
+            fetch(`/api/updates/${selectedLine}`)
+                .then(response => response.json())
+                .then(data => {
+                    const table = `<table>
+                        <tr>
+                            <th>Train</th>
+                            <th>Subway Station</th>
+                            <th>Arrival Time</th>
+                        </tr>
+                        ${data.map(update => `
+                        <tr>
+                            <td>${update.train}</td>
+                            <td>${update.stop_name}</td>
+                            <td>${update.arrival ? new Date(update.arrival * 1000).toLocaleTimeString() : 'N/A'}</td>
+                        </tr>
+                        `).join('')}
+                    </table>`;
+                    document.getElementById('updates').innerHTML = table;
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+    </script>
+</body>
+</html>
